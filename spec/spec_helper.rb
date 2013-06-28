@@ -5,6 +5,7 @@ require "bundler"
 Bundler.setup
 require "typhoeus"
 require "rspec"
+require "webmock"
 
 if defined? require_relative
   require_relative 'support/localhost_server.rb'
@@ -16,6 +17,8 @@ end
 
 RSpec.configure do |config|
   config.order = :rand
+
+  WebMock.disable!
 
   config.before(:suite) do
     LocalhostServer.new(TESTSERVER.new, 3001)

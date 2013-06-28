@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'webmock'
 
 describe Typhoeus::Request::Cacheable do
   let(:cache) {
@@ -60,6 +61,18 @@ describe Typhoeus::Request::Cacheable do
         let(:response) { Typhoeus::Response.new }
         before { cache.memory[request] = response }
 
+        it "finishes request" do
+          request.should_receive(:finish).with(response)
+          request.run
+        end
+      end
+      context "when webmock is activated" do
+        let(:response) { Typhoeus::Response.new }
+        before {
+          WebMock.enable!
+          WebMock::API.stub_request(:get, request.url).to_return(body: 'OK', status: 200)
+          cache.memory[request] = response}
+        after { WebMock.disable! }
         it "finishes request" do
           request.should_receive(:finish).with(response)
           request.run
